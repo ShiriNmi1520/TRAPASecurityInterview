@@ -1,0 +1,15 @@
+{
+  "name": "TRAPASecurityInterview",
+  "version": "1.0.0",
+  "description": "Discord bot for interview",
+  "main": "handler.js",
+  "repository": "https://github.com/ShiriNmi1520/TRAPASecurityInterview",
+  "author": "Ivan Huang",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "aws-sdk": "^2.1537.0",
+    "axios": "^1.6.5",
+    "tweetnacl": "^1.0.3"
+  }
+}
