@@ -55,16 +55,10 @@ const executeCommand = (command, options, user) => {
         console.debug('Executing echo command')
         const input = options[0].value
         resolve({
-          statusCode: 200,
-          body: JSON.stringify({
             type: 4,
             data: {
               content: input
             }
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          }
         });
         break;
       default:
