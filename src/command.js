@@ -18,7 +18,7 @@ const registerCommand = () => {
       },
       {
         name: 'text_channel',
-        type: 2,
+        type: 1,
         description: 'Create a text channel',
       },
       {
