@@ -1,6 +1,6 @@
 const fs= require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits, REST, Routes } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, REST, Routes, ChannelType } = require('discord.js');
 const config = require('./config')
 
 const registerCommand = () => {
@@ -48,24 +48,54 @@ const handleCommand = async (body) => {
   }
 }
 
-const executeCommand = (command, options, user) => {
-  return new Promise((resolve, reject) => {
-    switch (command) {
-      case 'echo':
-        console.debug('Executing echo command')
-        const input = options[0].value
-        resolve({
-            type: 4,
-            data: {
-              content: input
-            }
-        });
-        break;
-      default:
-        console.error('Invalid command', command)
-        reject(new Error('Invalid command'))
-    }
-  })
+const executeCommand = async (command, options, user) => {
+  switch (command) {
+    case 'echo':
+      console.debug('Executing echo command')
+      const input = options[0].value
+      return {
+        type: 4,
+        data: {
+          content: input
+        }
+      }
+    case 'text_channel':
+      try {
+        console.debug('Executing text_channel command')
+        const name = options[0].value
+        const client = new Client({
+          intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+        })
+        await client.login(config.discord.token)
+        const guild = client.guilds.cache.get(config.discord.guildId)
+        await guild.channels.create({
+          name: name,
+          type: ChannelType.GuildText,
+        })
+        return {
+          type: 4,
+          data: {
+            content: `Channel ${name} created`
+          }
+        }
+      } catch (createChannelError) {
+        console.error('Error creating channel', createChannelError)
+        return {
+          type: 4,
+          data: {
+            content: `Error creating channel`
+          }
+        }
+      }
+    default:
+      console.error('Invalid command', command)
+      return {
+        type: 4,
+        data: {
+          content: `Invalid command ${command}`
+        }
+      }
+  }
 }
 
 module.exports = {
