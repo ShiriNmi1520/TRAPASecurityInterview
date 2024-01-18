@@ -3,6 +3,7 @@ const config = {
     token: '',
     applicationID: '',
     guildId: '',
+    publicKey: '',
   },
 }
 
