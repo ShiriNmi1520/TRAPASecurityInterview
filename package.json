@@ -10,6 +10,7 @@
   "dependencies": {
     "aws-sdk": "^2.1537.0",
     "axios": "^1.6.5",
+    "discord-interactions": "^3.4.0",
     "tweetnacl": "^1.0.3"
   }
 }

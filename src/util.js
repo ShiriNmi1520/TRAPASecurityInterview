@@ -1,15 +1,12 @@
 const nacl = require('tweetnacl')
+const { verifyKey } = require('discord-interactions')
 const aws = require('aws-sdk')
 const config = require('./config')
 
 const verifySignature = (signature, timestamp, body) => {
   return new Promise((resolve, reject) => {
     try {
-      const verified = nacl.sign.detached.verify(
-        Buffer.from(timestamp + JSON.stringify(body)),
-        Buffer.from(signature, 'hex'),
-        Buffer.from(config.discord.token, 'hex')
-      )
+      const verified = verifyKey(body, signature, timestamp, config.discord.publicKey)
       resolve(verified)
     } catch (verifyError) {
       console.error('Signature verification error', verifyError)
