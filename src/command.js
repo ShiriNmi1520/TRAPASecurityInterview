@@ -1,57 +1,30 @@
+const fs= require('node:fs');
+const path = require('node:path');
+const { Client, Collection, Events, GatewayIntentBits, REST, Routes } = require('discord.js');
 const config = require('./config')
-const util = require('./util')
-const axios = require('axios')
 
 const registerCommand = () => {
   return new Promise((resolve, _reject) => {
-    const commands = [
-      {
-        name: 'echo',
-        type: 1,
-        description: 'Replies with your input!',
-      },
-      {
-        name: 'broadcast',
-        type: 1,
-        description: 'Create a cron job to broadcast a message to a channel',
-
-      },
-      {
-        name: 'text_channel',
-        type: 1,
-        description: 'Create a text channel',
-      },
-      {
-        name: 'kick',
-        type: 1,
-        description: 'Kick a user from the server',
-      },
-      {
-        name: 'ban',
-        type: 1,
-        description: 'Mute a user from the server',
-      }
-    ];
-    const createCommandPromises = [];
-    commands.map(command => {
-      createCommandPromises.push(
-        axios.post(
-          `https://discord.com/api/v10/applications/${config.discord.applicationID}/guilds/${config.discord.guildId}/commands`,
-          command,
-          {
-            headers: {
-              Authorization: `Bot ${config.discord.token}`,
-            },
-          },
-        )
-      )
-    })
-    Promise.all(createCommandPromises)
-      .then(() => resolve(true))
-      .catch((registerCommandError) => {
-        console.error('Error registering commands', registerCommandError);
-        resolve(false);
-      });
+    try {
+      // Load commands from commands folder
+      const commands = [];
+      const commandFiles = fs.readdirSync(path.join(__dirname, 'commands')).filter(file => file.endsWith('.js'));
+      commandFiles.map(commandFile => {
+        const command = require(`./commands/${commandFile}`);
+        commands.push(command.data.toJSON())
+      })
+      // Register command
+      const rest = new REST().setToken(config.discord.token);
+      rest.put(Routes.applicationGuildCommands(config.discord.applicationID, config.discord.guildId), { body: commands })
+        .then(() => resolve(true))
+        .catch(restPutError => {
+          console.error('Register command error (PUT command)', restPutError)
+          resolve(false)
+        })
+    } catch (registerError) {
+      console.error('Register command error', registerError)
+      resolve(false)
+    }
   })
 }
 
