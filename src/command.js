@@ -28,60 +28,48 @@ const registerCommand = () => {
   })
 }
 
-const handleCommand = (body) => {
+const handleCommand = async (body) => {
+  switch (body.type) {
+    case 2: // Slash command
+      // Load command from commands folder
+      const command = body.data.name
+      const options = body.data.options
+      const user = body.member.user
+      return executeCommand(command, options, user)
+    default:
+      console.error('Invalid interaction type', body.type)
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: 'Invalid interaction type' }),
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      };
+  }
+}
+
+const executeCommand = (command, options, user) => {
   return new Promise((resolve, reject) => {
-    const { name, options } = body.data;
-    const command = name.toLowerCase();
-    const args = {};
-    if (options) {
-      for (const option of options) {
-        const { name, value } = option;
-        args[name] = value;
-      }
-    }
     switch (command) {
       case 'echo':
+        console.debug('Executing echo command')
+        const input = options[0].value
         resolve({
-          type: 4,
-          data: {
-            content: args.message,
-          },
-        });
-        break;
-      case 'broadcast':
-        resolve({
-          type: 4,
-          data: {
-            content: 'Broadcasting message...',
-          },
-        });
-        break;
-      case 'text_channel':
-        resolve({
-          type: 4,
-          data: {
-            content: 'Creating text channel...',
-          },
-        });
-        break;
-      case 'kick':
-        resolve({
-          type: 4,
-          data: {
-            content: 'Kicking user...',
-          },
-        });
-        break;
-      case 'ban':
-        resolve({
-          type: 4,
-          data: {
-            content: 'Banning user...',
-          },
+          statusCode: 200,
+          body: JSON.stringify({
+            type: 4,
+            data: {
+              content: input
+            }
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          }
         });
         break;
       default:
-        reject(new Error('Unknown command'));
+        console.error('Invalid command', command)
+        reject(new Error('Invalid command'))
     }
   })
 }
