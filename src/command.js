@@ -1,114 +1,69 @@
+const fs= require('node:fs');
+const path = require('node:path');
+const { Client, Collection, Events, GatewayIntentBits, REST, Routes } = require('discord.js');
 const config = require('./config')
-const util = require('./util')
-const axios = require('axios')
 
 const registerCommand = () => {
   return new Promise((resolve, _reject) => {
-    const commands = [
-      {
-        name: 'echo',
-        type: 1,
-        description: 'Replies with your input!',
-      },
-      {
-        name: 'broadcast',
-        type: 1,
-        description: 'Create a cron job to broadcast a message to a channel',
-
-      },
-      {
-        name: 'text_channel',
-        type: 1,
-        description: 'Create a text channel',
-      },
-      {
-        name: 'kick',
-        type: 1,
-        description: 'Kick a user from the server',
-      },
-      {
-        name: 'ban',
-        type: 1,
-        description: 'Mute a user from the server',
-      }
-    ];
-    const createCommandPromises = [];
-    commands.map(command => {
-      createCommandPromises.push(
-        axios.post(
-          `https://discord.com/api/v10/applications/${config.discord.applicationID}/guilds/${config.discord.guildId}/commands`,
-          command,
-          {
-            headers: {
-              Authorization: `Bot ${config.discord.token}`,
-            },
-          },
-        )
-      )
-    })
-    Promise.all(createCommandPromises)
-      .then(() => resolve(true))
-      .catch((registerCommandError) => {
-        console.error('Error registering commands', registerCommandError);
-        resolve(false);
-      });
+    try {
+      // Load commands from commands folder
+      const commands = [];
+      const commandFiles = fs.readdirSync(path.join(__dirname, 'commands')).filter(file => file.endsWith('.js'));
+      commandFiles.map(commandFile => {
+        const command = require(`./commands/${commandFile}`);
+        commands.push(command.data.toJSON())
+      })
+      // Register command
+      const rest = new REST().setToken(config.discord.token);
+      rest.put(Routes.applicationGuildCommands(config.discord.applicationID, config.discord.guildId), { body: commands })
+        .then(() => resolve(true))
+        .catch(restPutError => {
+          console.error('Register command error (PUT command)', restPutError)
+          resolve(false)
+        })
+    } catch (registerError) {
+      console.error('Register command error', registerError)
+      resolve(false)
+    }
   })
 }
 
-const handleCommand = (body) => {
+const handleCommand = async (body) => {
+  switch (body.type) {
+    case 2: // Slash command
+      // Load command from commands folder
+      const command = body.data.name
+      const options = body.data.options
+      const user = body.member.user
+      return executeCommand(command, options, user)
+    default:
+      console.error('Invalid interaction type', body.type)
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: 'Invalid interaction type' }),
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      };
+  }
+}
+
+const executeCommand = (command, options, user) => {
   return new Promise((resolve, reject) => {
-    const { name, options } = body.data;
-    const command = name.toLowerCase();
-    const args = {};
-    if (options) {
-      for (const option of options) {
-        const { name, value } = option;
-        args[name] = value;
-      }
-    }
     switch (command) {
       case 'echo':
+        console.debug('Executing echo command')
+        const input = options[0].value
         resolve({
-          type: 4,
-          data: {
-            content: args.message,
-          },
-        });
-        break;
-      case 'broadcast':
-        resolve({
-          type: 4,
-          data: {
-            content: 'Broadcasting message...',
-          },
-        });
-        break;
-      case 'text_channel':
-        resolve({
-          type: 4,
-          data: {
-            content: 'Creating text channel...',
-          },
-        });
-        break;
-      case 'kick':
-        resolve({
-          type: 4,
-          data: {
-            content: 'Kicking user...',
-          },
-        });
-        break;
-      case 'ban':
-        resolve({
-          type: 4,
-          data: {
-            content: 'Banning user...',
-          },
+            type: 4,
+            data: {
+              content: input
+            }
         });
         break;
       default:
-        reject(new Error('Unknown command'));
+        console.error('Invalid command', command)
+        reject(new Error('Invalid command'))
     }
   })
 }

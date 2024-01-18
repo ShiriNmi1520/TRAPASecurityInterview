@@ -11,6 +11,7 @@
     "aws-sdk": "^2.1537.0",
     "axios": "^1.6.5",
     "discord-interactions": "^3.4.0",
+    "discord.js": "^14.14.1",
     "tweetnacl": "^1.0.3"
   }
 }
