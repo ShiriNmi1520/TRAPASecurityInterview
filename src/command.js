@@ -101,7 +101,7 @@ const executeCommand = async (command, options, user) => {
         return {
           type: 4,
           data: {
-            content: `User ${member.nickname} kicked`
+            content: `User ${member.user.username} kicked`
           }
         }
       } catch (kickUserError) {
@@ -110,6 +110,42 @@ const executeCommand = async (command, options, user) => {
           type: 4,
           data: {
             content: `Error kicking user`
+          }
+        }
+      }
+    case 'ban':
+      try {
+        console.debug('Executing ban command')
+        const userId = options[0].value
+        const client = new Client({
+          intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
+        })
+        await client.login(config.discord.token)
+        const guild = client.guilds.cache.get(config.discord.guildId)
+        const member = await guild.members.fetch(userId)
+        // Mute user
+        if (member.voice.channel) {
+          await member.voice.setMute(true)
+          return {
+            type: 4,
+            data: {
+              content: `User ${member.user.username} muted`
+            }
+          }
+        } else {
+          return {
+            type: 4,
+            data: {
+              content: `User ${member.user.username} not in voice channel`
+            }
+          }
+        }
+      } catch (banUserError) {
+        console.error('Error muting user', banUserError)
+        return {
+          type: 4,
+          data: {
+            content: `Error muting user`
           }
         }
       }
