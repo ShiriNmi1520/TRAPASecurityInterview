@@ -17,36 +17,14 @@ provider:
           Action:
             - "secretsmanager:GetSecretValue"
           Resource: "arn:aws:secretsmanager:ap-southeast-1:347819602869:secret:prod/TRAPASecurityInterview/discord-HeDAlO"
-
-# you can add statements to the Lambda function's IAM Role here
-#  iam:
-#    role:
-#      statements:
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:ListBucket"
-#          Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:PutObject"
-#          Resource:
-#            Fn::Join:
-#              - ""
-#              - - "arn:aws:s3:::"
-#                - "Ref" : "ServerlessDeploymentBucket"
-#                - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
-# you can add packaging information here
-#package:
-#  patterns:
-#    - '!exclude-me.js'
-#    - '!exclude-me-dir/**'
-#    - include-me.js
-#    - include-me-dir/**
+        - Effect: "Allow"
+          Action:
+            - "scheduler:CreateSchedule"
+          Resource: "*"
+        - Effect: "Allow"
+          Action:
+            - "iam:PassRole"
+          Resource: "arn:aws:iam::347819602869:role/cronScheduler"
 
 functions:
   discord:
