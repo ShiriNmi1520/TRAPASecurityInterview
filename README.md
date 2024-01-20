@@ -21,6 +21,12 @@ Presents a simple Discord bot that implements a few slash commands.
 ### Slash Commands
 #### Echo
 ![Echo](./docs/gif/echo.gif)
+#### Broadcast
+![Broadcast](./docs/gif/broadcast.gif)
+##### EventBridge Schedule
+![EventBridge Schedule](./docs/eventBridge-schedule.png)
+##### Schedule Result
+![Schedule Result](./docs/broadcast-result.png)
 #### Text Channel
 ![Text Channel](./docs/gif/text-channel.gif)
 #### Mute

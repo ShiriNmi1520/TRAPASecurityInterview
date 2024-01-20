@@ -2,6 +2,7 @@ const fs= require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits, REST, Routes, ChannelType } = require('discord.js');
 const config = require('./config')
+const { Scheduler } = require('aws-sdk');
 
 const registerCommand = () => {
   return new Promise((resolve, _reject) => {
@@ -35,7 +36,8 @@ const handleCommand = async (body) => {
       const command = body.data.name
       const options = body.data.options
       const user = body.member.user
-      return executeCommand(command, options, user)
+      const serverID = body.channel.guild_id
+      return executeCommand(command, options, user, serverID)
     default:
       console.error('Invalid interaction type', body.type)
       return {
@@ -48,7 +50,7 @@ const handleCommand = async (body) => {
   }
 }
 
-const executeCommand = async (command, options, user) => {
+const executeCommand = async (command, options, user, serverID) => {
   switch (command) {
     case 'echo':
       console.debug('Executing echo command')
@@ -146,6 +148,46 @@ const executeCommand = async (command, options, user) => {
           type: 4,
           data: {
             content: `Error muting user`
+          }
+        }
+      }
+    case 'broadcast':
+      try {
+        console.debug('Executing broadcast command')
+        const payload = {
+          server: serverID,
+          message: options[1].value,
+          channel: options[0].value,
+        }
+        // Create Scheduler
+        const scheduler = new Scheduler()
+        // Create job
+        await scheduler.createSchedule({
+          FlexibleTimeWindow: {
+            Mode: 'OFF'
+          },
+          Name: `broadcast-${Date.now()}`,
+          ScheduleExpression: `cron(${options[2].value})`,
+          State: 'ENABLED',
+          Description: `Broadcast created by ${user.username} at ${new Date().toISOString()}`,
+          Target: {
+              Arn: "arn:aws:lambda:ap-southeast-1:347819602869:function:DiscordSlashBot-dev-cron",
+              RoleArn: "arn:aws:iam::347819602869:role/cronScheduler",
+              Input: JSON.stringify(payload),
+          },
+        }).promise()
+        return {
+          type: 4,
+          data: {
+            content: `Broadcast scheduled`
+          }
+        }
+      } catch (broadcastError) {
+        console.error('Error broadcasting message', broadcastError)
+        return {
+          type: 4,
+          data: {
+            content: `Error broadcasting message`
           }
         }
       }

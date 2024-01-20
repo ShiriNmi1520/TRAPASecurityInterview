@@ -420,6 +420,11 @@ sax@>=0.6.0:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.3.0.tgz#a5dbe77db3be05c9d1ee7785dbd3ea9de51593d0"
   integrity sha512-0s+oAmw9zLl1V1cS9BtZN7JAd0cW5e0QH4W3LWEK6a4LaLEA2OTpGYWDY+6XasBLtz6wkm3u1xRw95mRuJ59WA==
 
+serverless-provisioned-concurrency-autoscaling@^1.9.1:
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/serverless-provisioned-concurrency-autoscaling/-/serverless-provisioned-concurrency-autoscaling-1.9.1.tgz#60a063a4527bb6072b08e8739bfbd9db87054336"
+  integrity sha512-7zmgbBC81RbwgxYJZ5je/F6/6Yk35o0iIBQsYbIQCHQX4xKSP3eS+OecP9ugywM6p/LFt9549XkhlMgb6J+/yw==
+
 set-function-length@^1.1.1:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/set-function-length/-/set-function-length-1.2.0.tgz#2f81dc6c16c7059bda5ab7c82c11f03a515ed8e1"
