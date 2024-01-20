@@ -7,15 +7,16 @@ module.exports = {
     .addChannelOption(option =>
       option.setName('channel')
         .setDescription('Channel to broadcast message to')
-        .setRequired(true))
-    .addStringOption(option => {
+        .setRequired(true)
+    )
+    .addStringOption(option =>
       option.setName('message')
         .setDescription('Message to broadcast')
         .setRequired(true)
-    })
-    .addStringOption(option => {
+    )
+    .addStringOption(option =>
       option.setName('schedule')
         .setDescription('Cron schedule')
         .setRequired(true)
-    })
+    )
 };
