@@ -35,3 +35,7 @@ Presents a simple Discord bot that implements a few slash commands.
 ![Mute (When user is not in a voice channel)](./docs/gif/mute-user-not-in-channel.gif)
 #### Kick
 ![Kick](./docs/gif/kick.gif)
+#### Unmute
+![Unmute](./docs/gif/unban.gif)
+#### Unmute (When user is not in a voice channel)
+![Unmute (When user is not in a voice channel)](./docs/gif/unban-user-not-in-channel.gif)
