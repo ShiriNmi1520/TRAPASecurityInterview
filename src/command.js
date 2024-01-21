@@ -191,6 +191,42 @@ const executeCommand = async (command, options, user, serverID) => {
           }
         }
       }
+    case 'unban':
+      try {
+        console.debug('Executing unban command')
+        const userId = options[0].value
+        const client = new Client({
+          intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
+        })
+        await client.login(config.discord.token)
+        const guild = client.guilds.cache.get(config.discord.guildId)
+        const member = await guild.members.fetch(userId)
+        // Unmute user
+        if (member.voice.channel && member.voice.serverMute) {
+          await member.voice.setMute(false)
+          return {
+            type: 4,
+            data: {
+              content: `User ${member.user.username} unmuted`
+            }
+          }
+        } else {
+          return {
+            type: 4,
+            data: {
+              content: `User ${member.user.username} not in voice channel or not muted`
+            }
+          }
+        }
+      } catch (unbanError) {
+        console.error('Error unmuting user', unbanError)
+        return {
+          type: 4,
+          data: {
+            content: `Error unmuting user`
+          }
+        }
+      }
     default:
       console.error('Invalid command', command)
       return {
